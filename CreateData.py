@@ -1,15 +1,16 @@
-# This is a sample Python script.
 import numpy as np
 import json
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from os.path import exists
+import pandas as pd
+
+
 def createDataSet():
     points = []
     while len(points) != 1000:
         x = np.random.randint(-10000, 10001)
         y = np.random.randint(-10000, 10001)
-        if (x/100, y/100) not in points:
-            points.append((x/100, y/100))
+        if (x / 100, y / 100) not in points:
+            points.append((x / 100, y / 100))
     return points
 
 
@@ -22,8 +23,24 @@ def saveDataSet(DataSetPoints):
         print("saved")
 
 
+def saveDataToCsv(data):
+    file_exists = exists("tableA.csv")
+    fields = ["x", "y", "value", "Delta1", "Delta2", "Bias", "MSE"]
+    rows = []
+    for row in data:
+        rows.append({"X": row[0], "Y": row[1], "Value": row[2], "Delta1": row[3], "Delta2": row[4], "Bias": row[5],
+                     "MSE": row[6]})
+    if file_exists:
+        df = pd.read_csv("TableA.csv")
+        for row in rows:
+            df = df.append(row, ignore_index=True)
+        df.to_csv("TableA.csv")
+    else:
+        df = pd.DataFrame(columns=fields)
+        for row in rows:
+            df = df.append(row, ignore_index=True)
+        df.to_csv("TableA.csv")
 
 
 if __name__ == '__main__':
-    points = createDataSet()
-    saveDataSet(points)
+    print("hello")
