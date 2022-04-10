@@ -24,6 +24,33 @@ def saveDataToCsv(data: list):
         df.to_csv("TableA.csv")
 
 
+def ParseJson(path: str, condition: bool):
+    points = []
+    jsonfile = "" + str(path) + ".json"
+    if jsonfile is not None:
+        with open(jsonfile, 'r') as jsonfile:
+            json_object = json.load(jsonfile)
+            jsonfile.close()
+            for i in range(len(json_object)):
+                p = json_object[str(i)]
+                if condition:
+                    # if we are in case A the condition is whether y is greater then 1
+                    if p['y'] > 1:
+                        single_point = (p['x'], p['y'], 1)
+                    else:
+                        single_point = (p['x'], p['y'], -1)
+                    points.append(single_point)
+                else:
+                    # if we are in case A the condition is whether 4<=x^2+y^2<=9
+                    cond = (p['x'] ** 2) + (p['y'] ** 2)
+                    if 4 <= cond <= 9:
+                        single_point = (p['x'], p['y'], 1)
+                    else:
+                        single_point = (p['x'], p['y'], -1)
+                    points.append(single_point)
+    return points
+
+
 class Adaline:
     """
     Constructor for Adaline class
@@ -41,28 +68,7 @@ class Adaline:
         self.b = 0
         self.eps = 0.5
         # read the points from the json file
-        jsonfile = "" + str(jsonfile) + ".json"
-        if jsonfile is not None:
-            with open(jsonfile, 'r') as jsonfile:
-                json_object = json.load(jsonfile)
-                jsonfile.close()
-                for i in range(len(json_object)):
-                    p = json_object[str(i)]
-                    if condition:
-                        # if we are in case A the condition is whether y is greater then 1
-                        if p['y'] > 1:
-                            single_point = (p['x'], p['y'], 1)
-                        else:
-                            single_point = (p['x'], p['y'], -1)
-                        self.points.append(single_point)
-                    else:
-                        # if we are in case A the condition is whether 4<=x^2+y^2<=9
-                        cond = (p['x'] ** 2) + (p['y'] ** 2)
-                        if 4 <= cond <= 9:
-                            single_point = (p['x'], p['y'], 1)
-                        else:
-                            single_point = (p['x'], p['y'], -1)
-                        self.points.append(single_point)
+        self.points = ParseJson(jsonfile, condition)
 
     def train(self):
         w1 = w2 = b = alpha = float("{0:.3f}".format(np.random.rand()))
@@ -72,7 +78,7 @@ class Adaline:
             mse = []
             rows = []
             for point in self.points:
-                Yin = b + w1 * point[0] + w2 * point[1]
+                Yin = b + (w1 * point[0]) + (w2 * point[1])
                 error = point[2] - Yin
                 if error != 0:
                     w1 = w1 + alpha * error * point[0]
@@ -94,17 +100,18 @@ class Adaline:
                 self.b = b
                 break
 
-    def test(self, DataSet: list) -> list:
+    def test(self, DataSetPath: str, condition: bool) -> list:
+        DataSet = ParseJson(DataSetPath, condition)
         ans = []
         for point in DataSet:
             pred = self.b + self.w1 * point[0] + self.w2 * point[1]
             ans.append((point[0], point[1], pred))
         return ans
 
-    def valid(self, DataSet: list, condition: bool) -> float:
-
+    def valid(self, DataSetPath: str, condition: bool) -> float:
+        DataSet = ParseJson(DataSetPath, condition)
         correct_ans = 0
-        pred = self.test(DataSet)
+        pred = self.test(DataSetPath, condition)
         for point in DataSet:
             if abs(pred[2] - point[2]) < self.eps:
                 correct_ans += 1
@@ -114,3 +121,4 @@ class Adaline:
 if __name__ == '__main__':
     model = Adaline("dataSets/dataSet1", True)
     model.train()
+    print(model.valid("dataSets/dataSet2", True))
