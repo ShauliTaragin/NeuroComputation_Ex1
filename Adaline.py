@@ -1,8 +1,32 @@
 import json
 from os.path import exists
 import pandas as pd
-
+import matplotlib.pyplot as plt
+import matplotlib.lines as lines
 import numpy as np
+
+
+def plotPoints(DataSetPath):
+    DataSet = ParseJson(DataSetPath, False)
+    x_1 = []
+    y_1 = []
+    x_0 = []
+    y_0 = []
+    fig = plt.figure()
+    for row in DataSet:
+        if row[1] > 1:
+            x_1.append(row[0])
+            y_1.append(row[1])
+        else:
+            x_0.append(row[0])
+            y_0.append(row[1])
+    # fig.add_artist(lines.Line2D([-100, 0], [100, 0]))
+    # fig.add_artist(lines.Line2D([0, -100], [0, 100]))
+    plt.scatter(x_1, y_1, color="green")
+    plt.scatter(x_0, y_0, color="red")
+    plt.plot([100, -100], [0, 0], color='k')
+    plt.plot([0, 0], [100, -100], color='k')
+    plt.show()
 
 
 def createDataSet():
@@ -149,14 +173,15 @@ class Adaline:
 
 
 if __name__ == '__main__':
-    model = Adaline("dataSets/dataSet2", True)
-    model.train()
-    print(model.valid("dataSets/dataSet1", True))
-    print(model.valid("dataSets/dataSet2", True))
-    print(model.valid("dataSets/dataSet3", True))
-
-    model = Adaline("dataSets/dataSet1", False)
-    model.train()
-    print(model.valid("dataSets/dataSet1", False))
-    print(model.valid("dataSets/dataSet2", False))
-    print(model.valid("dataSets/dataSet3", False))
+    # model = Adaline("dataSets/dataSet2", True)
+    # model.train()
+    plotPoints("dataSets/dataSet2")
+    # print(model.valid("dataSets/dataSet1", True))
+    # print(model.valid("dataSets/dataSet2", True))
+    # print(model.valid("dataSets/dataSet3", True))
+    #
+    # model = Adaline("dataSets/dataSet1", False)
+    # model.train()
+    # print(model.valid("dataSets/dataSet1", False))
+    # print(model.valid("dataSets/dataSet2", False))
+    # print(model.valid("dataSets/dataSet3", False))
