@@ -147,7 +147,7 @@ class Adaline:
                      "MSE": mse[-1]})
             mseTotal.append(np.sum(mse))
             saveDataToCsv(rows)
-            if mseTotal[-1] < 100 or (len(mseTotal) >= 2 and abs(mseTotal[-1] - mseTotal[-2]) < 0.001) or iterNum >= 50:
+            if mseTotal[-1] < 10 or (len(mseTotal) >= 2 and abs(mseTotal[-1] - mseTotal[-2]) < 0.001) or iterNum >= 50:
                 self.w1 = w1
                 self.w2 = w2
                 self.b = b
