@@ -1,5 +1,27 @@
 import json
+from os.path import exists
+import pandas as pd
+
 import numpy as np
+
+
+def saveDataToCsv(data: list):
+    file_exists = exists("tableA.csv")
+    fields = ["x", "y", "value", "Delta1", "Delta2", "Bias", "MSE"]
+    rows = []
+    for row in data:
+        rows.append({"X": row[0], "Y": row[1], "Value": row[2], "Delta1": row[3], "Delta2": row[4], "Bias": row[5],
+                     "MSE": row[6]})
+    if file_exists:
+        df = pd.read_csv("TableA.csv")
+        for row in rows:
+            df = df.append(row, ignore_index=True)
+        df.to_csv("TableA.csv")
+    else:
+        df = pd.DataFrame(columns=fields)
+        for row in rows:
+            df = df.append(row, ignore_index=True)
+        df.to_csv("TableA.csv")
 
 
 class Adaline:
@@ -42,17 +64,14 @@ class Adaline:
                             single_point = (p['x'], p['y'], -1)
                         self.points.append(single_point)
 
-    def saveDataToCSV(self):
-        print()
-
-    def train(self, DataSet: list):
+    def train(self):
         w1 = w2 = b = alpha = float("{0:.3f}".format(np.random.rand()))
         mseTotal = []
-        table = []
         while True:
             delta = []
             mse = []
-            for point in DataSet:
+            rows = []
+            for point in self.points:
                 Yin = b + w1 * point[0] + w2 * point[1]
                 error = point[2] - Yin
                 if error != 0:
@@ -63,7 +82,12 @@ class Adaline:
                 else:
                     delta.append((0, 0, 0))
                 mse.append(error ** 2)
+                rows.append(
+                    {"X": point[0], "Y": point[1], "Value": point[2], "Delta1": delta[-1][0], "Delta2": delta[-1][1],
+                     "Bias": delta[-1][2],
+                     "MSE": mse[-1]})
             mseTotal.append(np.sum(mse))
+            saveDataToCsv(rows)
             if mseTotal[-1] < 10:
                 self.w1 = w1
                 self.w2 = w2
@@ -77,7 +101,7 @@ class Adaline:
             ans.append((point[0], point[1], pred))
         return ans
 
-    def valid(self, DataSet: list, condition: bool)->float:
+    def valid(self, DataSet: list, condition: bool) -> float:
 
         correct_ans = 0
         pred = self.test(DataSet)
@@ -88,4 +112,5 @@ class Adaline:
 
 
 if __name__ == '__main__':
-    data = Adaline("dataSets/dataSet1", True)
+    model = Adaline("dataSets/dataSet1", True)
+    model.train()
