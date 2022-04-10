@@ -75,9 +75,8 @@ class Adaline:
         self.points = ParseJson(jsonfile, condition)
 
     def train(self):
-        # w1 = w2 = b = alpha = float("{0:.3f}".format(np.random.rand()))
-        w1 = w2 = b = 0.2
-        alpha = 0.005
+        w1 = w2 = b = float("{0:.3f}".format(np.random.rand()))
+        alpha = 0.1 / 2
         mseTotal = []
         while True:
             delta = []
@@ -100,12 +99,7 @@ class Adaline:
                      "MSE": mse[-1]})
             mseTotal.append(np.sum(mse))
             # saveDataToCsv(rows)
-            if len(mseTotal) >= 2 and abs(mseTotal[-1]-mseTotal[-2])<0.001:
-                self.w1 = w1
-                self.w2 = w2
-                self.b = b
-                break
-            if mseTotal[-1] < 10:
+            if (len(mseTotal) >= 2 and abs(mseTotal[-1] - mseTotal[-2]) < 0.001) or mseTotal[-1] < 10:
                 self.w1 = w1
                 self.w2 = w2
                 self.b = b
@@ -115,11 +109,7 @@ class Adaline:
         DataSet = ParseJson(DataSetPath, condition)
         ans = []
         for point in DataSet:
-            pred = self.b + self.w1 * point[0] + self.w2 * point[1]
-            if pred > 1:
-                pred = 1
-            else:
-                pred = -1
+            pred = 1 if self.b + self.w1 * point[0] + self.w2 * point[1] > 1 else -1
             ans.append((point[0], point[1], pred))
         return ans
 
@@ -134,14 +124,14 @@ class Adaline:
 
 
 if __name__ == '__main__':
-    model = Adaline("dataSet1", False)
+    model = Adaline("dataSets/dataSet1", False)
     model.train()
-    print(model.valid("dataSet1", False))
-    print(model.valid("dataSet2", False))
-    print(model.valid("dataSet3", False))
+    print(model.valid("dataSets/dataSet1", False))
+    print(model.valid("dataSets/dataSet2", False))
+    print(model.valid("dataSets/dataSet3", False))
 
-    # model = Adaline("dataSets/dataSet2", True)
-    # model.train()
-    # print(model.valid("dataSets/dataSet1", True))
-    # print(model.valid("dataSets/dataSet2", True))
-    # print(model.valid("dataSets/dataSet3", True))
+    model = Adaline("dataSets/dataSet2", True)
+    model.train()
+    print(model.valid("dataSets/dataSet1", True))
+    print(model.valid("dataSets/dataSet2", True))
+    print(model.valid("dataSets/dataSet3", True))
