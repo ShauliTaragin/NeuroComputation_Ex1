@@ -6,13 +6,14 @@
   <ol>
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#about-the-project">Plan and design of The Project</a></li>
-    <li><a href="#How To Run">How To Run</a></li>
+    <li><a href="#how-to-run">How To Run</a></li>
     <li><a href="#the-algorithm">The Algorithm</a></li>
     <li><a href="#results">Results</a></li>
     <li><a href="#languages-and-tools">Languages and Tools</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
 </details>
+
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
@@ -77,6 +78,11 @@ The list of datasets:
 
 ![Screenshot](images/Data_Sets.png)
 
+<br>
+
 ---------
 
+<!-- The Algorithm  -->
+## The Algorithm
 
+![image](https://user-images.githubusercontent.com/91602396/162632177-44d09e25-f544-44db-97dc-b21fcde90a82.png)
