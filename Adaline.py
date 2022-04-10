@@ -17,6 +17,7 @@ class Adaline:
         self.w1 = 0
         self.w2 = 0
         self.b = 0
+        self.eps = 0.5
         # read the points from the json file
         jsonfile = "" + str(jsonfile) + ".json"
         if jsonfile is not None:
@@ -60,8 +61,21 @@ class Adaline:
                 self.b = b
                 break
 
-    def test(self, DataSet: list):
-        print()
+    def test(self, DataSet: list) -> list:
+        ans = []
+        for point in DataSet:
+            pred = self.b + self.w1 * point[0] + self.w2 * point[1]
+            ans.append((point[0], point[1], pred))
+        return ans
+
+    def valid(self, DataSet: list, condition: bool)->float:
+
+        correct_ans = 0
+        pred = self.test(DataSet)
+        for point in DataSet:
+            if abs(pred[2] - point[2]) < self.eps:
+                correct_ans += 1
+        return correct_ans / len(DataSet)
 
 
 if __name__ == '__main__':
