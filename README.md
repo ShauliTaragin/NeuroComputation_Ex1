@@ -50,8 +50,31 @@ Also it returns the precentage of the accuracy.
 * **saveDataSet -** Save the data into json file.
 * **saveDataToCsv -** Given the values of each iteration it wrtie the values into csv table.
 
+---------
+
 <!-- HOW TO RUN -->
 ## How To Run
 
-<!-- ![Screenshot](data/pic_pokemon_3.png)
- -->
+In order to run the algorithm you have to do three steps:
+1. Create the Adaline object - Adaline("dataSets/dataSetName", condition)
+2. Call the Train function - name_of_object.train()
+3. Call the Valid function - name_of_object.valid("dataSets/dataSetName", condition)
+
+
+For the condition you have two options:
+1. True - Run the condition which says: if the Y_i > 1 then the value is 1, else -1.
+2. False - Run the condition which says: if 4 <= (Y_i)^2 + (X_i)^2 <= 9 then the value is 1, else -1.
+
+This image shows example of the code with False condition:
+
+![Screenshot](images/True_Condition.png)
+
+This image shows example of the code with False condition:
+
+![Screenshot](images/False_Condition.png)
+
+The list of datasets:
+
+![Screenshot](images/Data_Sets.png)
+
+
