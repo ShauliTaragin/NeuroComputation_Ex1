@@ -2,7 +2,6 @@ import json
 from os.path import exists
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.lines as lines
 import numpy as np
 
 
@@ -49,7 +48,7 @@ def saveDataSet(DataSetPoints):
 
 
 def saveDataToCsv(data: list):
-    file_exists = exists("tableA.csv")
+    file_exists = exists("tableB.csv")
     rows = []
     for row in data:
         if file_exists:
@@ -64,13 +63,13 @@ def saveDataToCsv(data: list):
              "DeltaBias": '---',
              "MSE": '---'})
         df = pd.DataFrame(rows)
-        df_old = pd.read_csv("tableA.csv")
+        df_old = pd.read_csv("tableB.csv")
         df = pd.concat([df_old, df])
         df = df.drop(columns=['Unnamed: 0'])
-        df.to_csv("tableA.csv")
+        df.to_csv("tableB.csv")
     else:
         df = pd.DataFrame(rows)
-        df.to_csv("tableA.csv")
+        df.to_csv("tableB.csv")
 
 
 def ParseJson(path: str, condition: bool):
@@ -173,9 +172,9 @@ class Adaline:
 
 
 if __name__ == '__main__':
-    # model = Adaline("dataSets/dataSet2", True)
-    # model.train()
-    plotPoints("dataSets/dataSet2")
+    model = Adaline("dataSets/dataSet2", False)
+    model.train()
+    # plotPoints("dataSets/dataSet2")
     # print(model.valid("dataSets/dataSet1", True))
     # print(model.valid("dataSets/dataSet2", True))
     # print(model.valid("dataSets/dataSet3", True))
