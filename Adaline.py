@@ -1,8 +1,26 @@
 import json
 from os.path import exists
 import pandas as pd
-
 import numpy as np
+
+
+def createDataSet():
+    points = []
+    while len(points) != 1000:
+        x = np.random.randint(-10000, 10001)
+        y = np.random.randint(-10000, 10001)
+        if (x / 100, y / 100) not in points:
+            points.append((x / 100, y / 100))
+    return points
+
+
+def saveDataSet(DataSetPoints):
+    data = {}
+    for i in range(len(DataSetPoints)):
+        data[str(i)] = {"x": DataSetPoints[i][0], "y": DataSetPoints[i][1]}
+    with open('test.json', 'w') as f:
+        json.dump(data, f)
+        print("saved")
 
 
 def saveDataToCsv(data: list):
