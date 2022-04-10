@@ -77,10 +77,7 @@ class Adaline:
         w1 = w2 = b = 0.2
         alpha = 0.005
         mseTotal = []
-        counter = 1
         while True:
-            print(counter)
-            counter += 1
             delta = []
             mse = []
             rows = []
@@ -100,8 +97,7 @@ class Adaline:
                      "Bias": delta[-1][2],
                      "MSE": mse[-1]})
             mseTotal.append(np.sum(mse))
-            print(mseTotal[-1])
-            saveDataToCsv(rows)
+            # saveDataToCsv(rows)
             if len(mseTotal) >= 2 and abs(mseTotal[-1]-mseTotal[-2])<0.001:
                 self.w1 = w1
                 self.w2 = w2
@@ -136,6 +132,14 @@ class Adaline:
 
 
 if __name__ == '__main__':
-    model = Adaline("dataSets/dataSet1", True)
+    model = Adaline("dataSets/dataSet1", False)
+    model.train()
+    print(model.valid("dataSets/dataSet1", False))
+    print(model.valid("dataSets/dataSet2", False))
+    print(model.valid("dataSets/dataSet3", False))
+
+    model = Adaline("dataSets/dataSet2", True)
     model.train()
     print(model.valid("dataSets/dataSet1", True))
+    print(model.valid("dataSets/dataSet2", True))
+    print(model.valid("dataSets/dataSet3", True))
