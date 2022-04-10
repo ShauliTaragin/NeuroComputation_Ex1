@@ -14,6 +14,9 @@ class Adaline:
     def __init__(self, jsonfile: str, condition: bool):
         # class member points which is a list of points. each point is a tuple ->(x,y, value 1 or -1)
         self.points = []
+        self.w1 = 0
+        self.w2 = 0
+        self.b = 0
         # read the points from the json file
         jsonfile = "" + str(jsonfile) + ".json"
         if jsonfile is not None:
@@ -29,36 +32,36 @@ class Adaline:
                             single_point = (p['x'], p['y'], -1)
                         self.points.append(single_point)
 
+    def saveDataToCSV(self):
+        print()
 
-def saveDataToCSV():
-    print()
+    def train(self, DataSet: list):
+        w1 = w2 = b = alpha = float("{0:.3f}".format(np.random.rand()))
+        mseTotal = []
+        table = []
+        while True:
+            delta = []
+            mse = []
+            for point in DataSet:
+                Yin = b + w1 * point[0] + w2 * point[1]
+                error = point[2] - Yin
+                if error != 0:
+                    w1 = w1 + alpha * error * point[0]
+                    w2 = w2 + alpha * error * point[1]
+                    b = b + alpha * error
+                    delta.append((alpha * error * point[0], alpha * error * point[1], alpha * error))
+                else:
+                    delta.append((0, 0, 0))
+                mse.append(error ** 2)
+            mseTotal.append(np.sum(mse))
+            if mseTotal[-1] < 10:
+                self.w1 = w1
+                self.w2 = w2
+                self.b = b
+                break
 
-
-def train(DataSet: list):
-    w1 = w2 = b = alpha = float("{0:.3f}".format(np.random.rand()))
-    mseTotal = []
-    table = []
-    while True:
-        delta = []
-        mse = []
-        for point in DataSet:
-            Yin = b + w1 * point[0] + w2 * point[1]
-            error = point[2] - Yin
-            if error != 0:
-                w1 = w1 + alpha * error * point[0]
-                w2 = w2 + alpha * error * point[1]
-                b = b + alpha * error
-                delta.append((alpha * error * point[0], alpha * error * point[1], alpha * error))
-            else:
-                delta.append((0, 0, 0))
-            mse.append(error ** 2)
-        mseTotal.append(np.sum(mse))
-        if mseTotal[-1] < 10:
-            break
-
-
-def test(DataSet: list):
-    print()
+    def test(self, DataSet: list):
+        print()
 
 
 if __name__ == '__main__':
