@@ -26,23 +26,26 @@ def saveDataSet(DataSetPoints):
 
 def saveDataToCsv(data: list):
     file_exists = exists("tableA.csv")
-    fields = ["x", "y", "value", "Delta1", "Delta2", "Bias", "MSE"]
     rows = []
     for row in data:
-        rows.append(
-            {"X": row['X'], "Y": row['Y'], "Value": row['Value'], "Delta1": row['Delta1'], "Delta2": row['Delta2'],
-             "Bias": row['Bias'],
-             "MSE": row['MSE']})
+        if file_exists:
+            rows.append(
+                {"X": row['X'], "Y": row['Y'], "Value": row['Value'], "Delta1": row['Delta1'], "Delta2": row['Delta2'],
+                 "Bias": row['Bias'],
+                 "MSE": row['MSE']})
     if file_exists:
-        df = pd.read_csv("TableA.csv")
-        for row in rows:
-            df = df.append(row, ignore_index=True)
-        df.to_csv("TableA.csv")
+        rows.append(
+            {"X": '---', "Y": '---', "Value": '---', "Delta1": '---', "Delta2": '---',
+             "Bias": '---',
+             "MSE": '---'})
+        df = pd.DataFrame(rows)
+        df_old = pd.read_csv("tableA.csv")
+        df = pd.concat([df_old, df])
+        df = df.drop(columns=['Unnamed: 0'])
+        df.to_csv("tableA.csv")
     else:
-        df = pd.DataFrame(columns=fields)
-        for row in rows:
-            df = df.append(row, ignore_index=True)
-        df.to_csv("TableA.csv")
+        df = pd.DataFrame(rows)
+        df.to_csv("tableA.csv")
 
 
 def ParseJson(path: str, condition: bool):
