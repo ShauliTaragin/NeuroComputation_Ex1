@@ -10,8 +10,10 @@ def saveDataToCsv(data: list):
     fields = ["x", "y", "value", "Delta1", "Delta2", "Bias", "MSE"]
     rows = []
     for row in data:
-        rows.append({"X": row[0], "Y": row[1], "Value": row[2], "Delta1": row[3], "Delta2": row[4], "Bias": row[5],
-                     "MSE": row[6]})
+        rows.append(
+            {"X": row['X'], "Y": row['Y'], "Value": row['Value'], "Delta1": row['Delta1'], "Delta2": row['Delta2'],
+             "Bias": row['Bias'],
+             "MSE": row['MSE']})
     if file_exists:
         df = pd.read_csv("TableA.csv")
         for row in rows:
@@ -71,20 +73,25 @@ class Adaline:
         self.points = ParseJson(jsonfile, condition)
 
     def train(self):
-        w1 = w2 = b = alpha = float("{0:.3f}".format(np.random.rand()))
+        # w1 = w2 = b = alpha = float("{0:.3f}".format(np.random.rand()))
+        w1 = w2 = b = 0.2
+        alpha = 0.005
         mseTotal = []
+        counter = 1
         while True:
+            print(counter)
+            counter += 1
             delta = []
             mse = []
             rows = []
             for point in self.points:
-                Yin = b + (w1 * point[0]) + (w2 * point[1])
+                Yin = b + (w1 * point[0] / 100) + (w2 * point[1] / 100)
                 error = point[2] - Yin
                 if error != 0:
-                    w1 = w1 + alpha * error * point[0]
-                    w2 = w2 + alpha * error * point[1]
+                    w1 = w1 + alpha * error * point[0] / 100
+                    w2 = w2 + alpha * error * point[1] / 100
                     b = b + alpha * error
-                    delta.append((alpha * error * point[0], alpha * error * point[1], alpha * error))
+                    delta.append((alpha * error * point[0] / 100, alpha * error * point[1] / 100, alpha * error))
                 else:
                     delta.append((0, 0, 0))
                 mse.append(error ** 2)
@@ -93,7 +100,13 @@ class Adaline:
                      "Bias": delta[-1][2],
                      "MSE": mse[-1]})
             mseTotal.append(np.sum(mse))
+            print(mseTotal[-1])
             saveDataToCsv(rows)
+            if len(mseTotal) >= 2 and abs(mseTotal[-1]-mseTotal[-2])<0.001:
+                self.w1 = w1
+                self.w2 = w2
+                self.b = b
+                break
             if mseTotal[-1] < 10:
                 self.w1 = w1
                 self.w2 = w2
@@ -105,6 +118,10 @@ class Adaline:
         ans = []
         for point in DataSet:
             pred = self.b + self.w1 * point[0] + self.w2 * point[1]
+            if pred > 1:
+                pred = 1
+            else:
+                pred = -1
             ans.append((point[0], point[1], pred))
         return ans
 
@@ -112,8 +129,8 @@ class Adaline:
         DataSet = ParseJson(DataSetPath, condition)
         correct_ans = 0
         pred = self.test(DataSetPath, condition)
-        for point in DataSet:
-            if abs(pred[2] - point[2]) < self.eps:
+        for i in range(len(DataSet)):
+            if abs(pred[i][2] - DataSet[i][2]) < self.eps:
                 correct_ans += 1
         return correct_ans / len(DataSet)
 
@@ -121,4 +138,4 @@ class Adaline:
 if __name__ == '__main__':
     model = Adaline("dataSets/dataSet1", True)
     model.train()
-    print(model.valid("dataSets/dataSet2", True))
+    print(model.valid("dataSets/dataSet1", True))
