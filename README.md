@@ -6,7 +6,7 @@
   <ol>
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#about-the-project">Plan and design of The Project</a></li>
-    <li><a href="#How To Run">How To Run</a></li>
+    <li><a href="#how-to-run">How To Run</a></li>
     <li><a href="#the-algorithm">The Algorithm</a></li>
     <li><a href="#results">Results</a></li>
     <li><a href="#languages-and-tools">Languages and Tools</a></li>
@@ -77,6 +77,45 @@ The list of datasets:
 
 ![Screenshot](images/Data_Sets.png)
 
+<br>
+
 ---------
+
+<!-- The Algorithm  -->
+## The Algorithm
+
+First let’s define the variables:
+
+* ![alpha](http://www.sciweavers.org/tex2img.php?eq=%5Calpha&bc=Black&fc=White&im=jpg&fs=12&ff=arev&edit=) - is the learning rate (some positive constant).
+
+* ![theta](http://www.sciweavers.org/tex2img.php?eq=%5Ctheta&bc=Black&fc=White&im=jpg&fs=12&ff=arev&edit=) - the target.
+
+
+* ![y_i](http://www.sciweavers.org/tex2img.php?eq=Y_%7Bin%7D&bc=Black&fc=White&im=jpg&fs=12&ff=arev&edit=) - is the current output of the model.
+
+
+* ![w_i](http://www.sciweavers.org/tex2img.php?eq=W_%7Bi%7D&bc=Black&fc=White&im=jpg&fs=12&ff=arev&edit=) - is the weight of the current neurone.
+
+
+* ![beta](http://www.sciweavers.org/tex2img.php?eq=%5Cbeta&bc=Black&fc=White&im=jpg&fs=12&ff=arev&edit=) - some constant.
+
+
+Steps:
+
+
+1. Compute every y_i - ![y_i=b+sig(Xi*Wi)](http://www.sciweavers.org/tex2img.php?eq=Y%3D%5Cbeta%2B%5Csum_%7Bi%20%3D%200%7D%5E%7Bn%7D%7BX_%7Bi%7D%2AW_%7Bi%7D%7D&bc=Black&fc=White&im=jpg&fs=12&ff=arev&edit=)
+
+
+2. Compute the new weights - ![Wi(new)=Wi(old)+alpa(t-y_in)Xi](http://www.sciweavers.org/tex2img.php?eq=W_%7Bnew%7D%20%3D%20W_%7Bold%7D%20%2B%20%5Calpha%2A%28%5Ctheta-Y_%7Bi%7D%29%2AX_%7Bi%7D&bc=Black&fc=White&im=jpg&fs=12&ff=arev&edit=).
+
+
+3. Compute the new beta - ![b(new)=b(old)+alpa(t-y_in)](http://www.sciweavers.org/tex2img.php?eq=%5Cbeta_%7Bnew%7D%20%3D%20%5Cbeta_%7Bold%7D%20%2B%20%5Calpha%2A%28%5Ctheta-Y_%7Bi%7D%29&bc=Black&fc=White&im=jpg&fs=12&ff=arev&edit=).
+
+
+4. Calculate the MSE - ![error=sig(t-y_in))](http://www.sciweavers.org/tex2img.php?eq=E%20%3D%20%5Csum_%7Bi%20%3D%200%7D%5E%7Bn%7D%7B%28%5Ctheta_%7Bi%7D%20-%20Y_%7Bi%7D%29%5E2%7D&bc=Black&fc=White&im=jpg&fs=12&ff=arev&edit=).
+
+
+
+
 
 
