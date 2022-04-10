@@ -30,13 +30,14 @@ def saveDataToCsv(data: list):
     for row in data:
         if file_exists:
             rows.append(
-                {"X": row['X'], "Y": row['Y'], "Value": row['Value'], "Delta1": row['Delta1'], "Delta2": row['Delta2'],
-                 "Bias": row['Bias'],
+                {"X": row['X'], "Y": row['Y'], "Value": row['Value'], "DeltaW1": row['DeltaW1'],
+                 "DeltaW2": row['DeltaW2'],
+                 "DeltaBias": row['DeltaBias'],
                  "MSE": row['MSE']})
     if file_exists:
         rows.append(
-            {"X": '---', "Y": '---', "Value": '---', "Delta1": '---', "Delta2": '---',
-             "Bias": '---',
+            {"X": '---', "Y": '---', "Value": '---', "DeltaW1": '---', "DeltaW2": '---',
+             "DeltaBias": '---',
              "MSE": '---'})
         df = pd.DataFrame(rows)
         df_old = pd.read_csv("tableA.csv")
@@ -98,8 +99,7 @@ class Adaline:
 
     def train(self):
         w1 = w2 = b = float("{0:.3f}".format(np.random.rand()))
-        # alpha = 0.1 / 2
-        alpha=0.000001
+        alpha = 0.1 / 2
         mseTotal = []
         iterNum = 0
         while True:
