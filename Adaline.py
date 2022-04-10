@@ -4,11 +4,11 @@ import numpy as np
 
 class Adaline:
     """
-    Constuctor for Adaline class
-    :param self: Adaline
-    :param jsonfile: T1
-    :param condition: T2
-    :return: opencv solution, my implementation
+    Constructor for Adaline class
+    :param self: Our Adaline Network
+    :param jsonfile: The data set of points as a json file
+    :param condition: which case are we using now , part A or B
+    The data set of points as a list
     """
 
     def __init__(self, jsonfile: str, condition: bool):
@@ -26,7 +26,16 @@ class Adaline:
                 for i in range(len(json_object)):
                     p = json_object[str(i)]
                     if condition:
+                        # if we are in case A the condition is whether y is greater then 1
                         if p['y'] > 1:
+                            single_point = (p['x'], p['y'], 1)
+                        else:
+                            single_point = (p['x'], p['y'], -1)
+                        self.points.append(single_point)
+                    else:
+                        # if we are in case A the condition is whether 4<=x^2+y^2<=9
+                        cond = (p['x'] ** 2) + (p['y'] ** 2)
+                        if 4 <= cond <= 9:
                             single_point = (p['x'], p['y'], 1)
                         else:
                             single_point = (p['x'], p['y'], -1)
