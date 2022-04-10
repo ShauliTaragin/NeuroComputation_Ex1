@@ -59,6 +59,8 @@ class Adaline:
     :param self: Our Adaline Network
     :param jsonfile: The data set of points as a json file
     :param condition: which case are we using now , part A or B
+    case A: y > 1
+    case B: 4 <= x^2 + y^2 <=9
     The data set of points as a list
     """
 
@@ -132,14 +134,14 @@ class Adaline:
 
 
 if __name__ == '__main__':
-    model = Adaline("dataSets/dataSet1", False)
+    model = Adaline("dataSet1", False)
     model.train()
-    print(model.valid("dataSets/dataSet1", False))
-    print(model.valid("dataSets/dataSet2", False))
-    print(model.valid("dataSets/dataSet3", False))
+    print(model.valid("dataSet1", False))
+    print(model.valid("dataSet2", False))
+    print(model.valid("dataSet3", False))
 
-    model = Adaline("dataSets/dataSet2", True)
-    model.train()
-    print(model.valid("dataSets/dataSet1", True))
-    print(model.valid("dataSets/dataSet2", True))
-    print(model.valid("dataSets/dataSet3", True))
+    # model = Adaline("dataSets/dataSet2", True)
+    # model.train()
+    # print(model.valid("dataSets/dataSet1", True))
+    # print(model.valid("dataSets/dataSet2", True))
+    # print(model.valid("dataSets/dataSet3", True))
