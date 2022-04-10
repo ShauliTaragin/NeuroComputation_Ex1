@@ -146,14 +146,14 @@ class Adaline:
 
 
 if __name__ == '__main__':
-    model = Adaline("dataSets/dataSet1", False)
-    model.train()
-    print(model.valid("dataSets/dataSet1", False))
-    print(model.valid("dataSets/dataSet2", False))
-    print(model.valid("dataSets/dataSet3", False))
-
     model = Adaline("dataSets/dataSet2", True)
     model.train()
     print(model.valid("dataSets/dataSet1", True))
     print(model.valid("dataSets/dataSet2", True))
     print(model.valid("dataSets/dataSet3", True))
+
+    model = Adaline("dataSets/dataSet1", False)
+    model.train()
+    print(model.valid("dataSets/dataSet1", False))
+    print(model.valid("dataSets/dataSet2", False))
+    print(model.valid("dataSets/dataSet3", False))
