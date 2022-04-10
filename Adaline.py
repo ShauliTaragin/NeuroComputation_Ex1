@@ -1,6 +1,7 @@
 import json
 from os.path import exists
 import pandas as pd
+
 import numpy as np
 
 
@@ -94,9 +95,12 @@ class Adaline:
 
     def train(self):
         w1 = w2 = b = float("{0:.3f}".format(np.random.rand()))
-        alpha = 0.1 / 2
+        # alpha = 0.1 / 2
+        alpha=0.000001
         mseTotal = []
+        iterNum = 0
         while True:
+            iterNum += 1
             delta = []
             mse = []
             rows = []
@@ -112,12 +116,12 @@ class Adaline:
                     delta.append((0, 0, 0))
                 mse.append(error ** 2)
                 rows.append(
-                    {"X": point[0], "Y": point[1], "Value": point[2], "Delta1": delta[-1][0], "Delta2": delta[-1][1],
-                     "Bias": delta[-1][2],
+                    {"X": point[0], "Y": point[1], "Value": point[2], "DeltaW1": delta[-1][0], "DeltaW2": delta[-1][1],
+                     "DeltaBias": delta[-1][2],
                      "MSE": mse[-1]})
             mseTotal.append(np.sum(mse))
-            # saveDataToCsv(rows)
-            if (len(mseTotal) >= 2 and abs(mseTotal[-1] - mseTotal[-2]) < 0.001) or mseTotal[-1] < 10:
+            saveDataToCsv(rows)
+            if mseTotal[-1] < 100 or (len(mseTotal) >= 2 and abs(mseTotal[-1] - mseTotal[-2]) < 0.001) or iterNum >= 50:
                 self.w1 = w1
                 self.w2 = w2
                 self.b = b
@@ -127,7 +131,7 @@ class Adaline:
         DataSet = ParseJson(DataSetPath, condition)
         ans = []
         for point in DataSet:
-            pred = 1 if self.b + self.w1 * point[0] + self.w2 * point[1] > 1 else -1
+            pred = 1 if self.b + self.w1 * point[0] + self.w2 * point[1] >= 0 else -1
             ans.append((point[0], point[1], pred))
         return ans
 
@@ -136,7 +140,7 @@ class Adaline:
         correct_ans = 0
         pred = self.test(DataSetPath, condition)
         for i in range(len(DataSet)):
-            if abs(pred[i][2] - DataSet[i][2]) < self.eps:
+            if pred[i][2] == DataSet[i][2]:
                 correct_ans += 1
         return correct_ans / len(DataSet)
 
