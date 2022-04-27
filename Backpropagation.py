@@ -133,47 +133,9 @@ class Backpropagation:
         self.N=self.train_y.size
 
     def train(self):
-        iterations=5000
-        # for itr in range(iterations):
-            # if itr==10:
-            #     print()
-            # # feedforward propagation
-            # # on hidden layer
-            # Z1 = np.dot(self.train_x, self.w1)
-            # A1 = sigmoid(Z1)
-            #
-            # # on output layer
-            # Z2 = np.dot(A1, self.w2)
-            # A2 = sigmoid(Z2)
-            #
-            # # Calculating error
-            # mse = mean_squared_error(A2, self.train_y)
-            # acc = accuracy(A2, self.train_y)
-            # # results = results.append({"mse": mse, "accuracy": acc}, ignore_index=True)
-            #
-            # # backpropagation
-            # E1 = A2 - self.train_y
-            # dW1 = E1 * A2 * (1 - A2)
-            #
-            # E2 = np.dot(dW1, self.w2.T)
-            # dW2 = E2 * A1 * (1 - A1)
-            #
-            # # weight updates
-            # N=self.train_y.size
-            # W2_update = np.dot(A1.T, dW1) / N
-            # W1_update = np.dot(self.train_x.T, dW2) / N
-            #
-            # self.w2 = self.w2 - self.learning_rate * W2_update
-            # self.w1 = self.w1 - self.learning_rate * W1_update
-
-
-
-
-
-
         iterNumber = 0
         errors = []
-        while iterNumber < 5000 and (len(errors) >= 2 and abs(errors[-1] - errors[-2]) < 0.0001):
+        while iterNumber < 5000:
             print(iterNumber)
             # feed forward
             z_1 = np.dot(self.train_x, self.w1)
@@ -209,19 +171,7 @@ class Backpropagation:
         #
             iterNumber += 1
 
-            # E1 = A2 - self.train_y
-            # dW1 = E1 * A2 * (1 - A2)
-            #
-            # E2 = np.dot(dW1, self.w2.T)
-            # dW2 = E2 * A1 * (1 - A1)
-            #
-            # # weight updates
-            # N=self.train_y.size
-            # W2_update = np.dot(A1.T, dW1) / N
-            # W1_update = np.dot(self.train_x.T, dW2) / N
-            #
-            # self.w2 = self.w2 - self.learning_rate * W2_update
-            # self.w1 = self.w1 - self.learning_rate * W1_update
+
 
     def test(self, DataSetPath: str, condition: bool) -> list:
         DataSet = ParseJson(DataSetPath, condition)
