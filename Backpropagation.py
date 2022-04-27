@@ -5,6 +5,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
+def mean_squared_error(y_pred, y_true):
+    return ((y_pred - y_true) ** 2).sum() / (2 * y_pred.size)
+
+
+def accuracy(y_pred, y_true):
+    acc = y_pred.argmax(axis=1) == y_true.argmax(axis=1)
+    return acc.mean()
+
+
 def plotPoints(DataSetPath):
     DataSet = ParseJson(DataSetPath, False)
     x_1 = []
@@ -97,12 +110,149 @@ def ParseJson(path: str, condition: bool):
                         single_point = (p['x'], p['y'], -1)
                     points.append(single_point)
     return points
+
+
 class Backpropagation:
-    def __init__( self, jsonfile: str, condition: bool):
+    def __init__(self, jsonfile: str, condition: bool):
         # class member points which is a list of points. each point is a tuple ->(x,y, value 1 or -1)
+        self.learning_rate = 0.1
         self.points = []
-        self.w1 = 0
-        self.w2 = 0
-        self.b = 0
+        np.random.seed(10)
+
+
+        self.w1 = np.random.normal(scale=0.5, size=(2, 2))
+        self.w2 = np.random.normal(scale=0.5, size=(2, 2))
+        # self.w2 = 0
+        self.b1 = np.random.rand(2)
+        self.b2 = np.random.rand(2)
         # read the points from the json file
         self.points = ParseJson(jsonfile, condition)
+        self.train_x = np.asarray([[x, y] for x, y, z in self.points])
+        self.train_y = np.asarray([[z] if z == 1 else [0] for x, y, z in self.points])
+        self.train_y = np.asarray([[1, 0] if z == 1 else [0, 1] for z in self.train_y])
+        self.N=self.train_y.size
+
+    def train(self):
+        iterations=5000
+        # for itr in range(iterations):
+            # if itr==10:
+            #     print()
+            # # feedforward propagation
+            # # on hidden layer
+            # Z1 = np.dot(self.train_x, self.w1)
+            # A1 = sigmoid(Z1)
+            #
+            # # on output layer
+            # Z2 = np.dot(A1, self.w2)
+            # A2 = sigmoid(Z2)
+            #
+            # # Calculating error
+            # mse = mean_squared_error(A2, self.train_y)
+            # acc = accuracy(A2, self.train_y)
+            # # results = results.append({"mse": mse, "accuracy": acc}, ignore_index=True)
+            #
+            # # backpropagation
+            # E1 = A2 - self.train_y
+            # dW1 = E1 * A2 * (1 - A2)
+            #
+            # E2 = np.dot(dW1, self.w2.T)
+            # dW2 = E2 * A1 * (1 - A1)
+            #
+            # # weight updates
+            # N=self.train_y.size
+            # W2_update = np.dot(A1.T, dW1) / N
+            # W1_update = np.dot(self.train_x.T, dW2) / N
+            #
+            # self.w2 = self.w2 - self.learning_rate * W2_update
+            # self.w1 = self.w1 - self.learning_rate * W1_update
+
+
+
+
+
+
+        iterNumber = 0
+        errors = []
+        while iterNumber < 5000 and (len(errors) >= 2 and abs(errors[-1] - errors[-2]) < 0.0001):
+            print(iterNumber)
+            # feed forward
+            z_1 = np.dot(self.train_x, self.w1)
+            # z_1 = np.asarray([[x + self.b1[0], y + self.b1[1]] for x, y in z_1])
+            a_1 = sigmoid(z_1)
+
+            z_2 = np.dot(a_1, self.w2)
+            # z_2 = np.asarray([[x + self.b2[0], y + self.b2[1]] for x, y in z_2])
+            a_2 = sigmoid(z_2)
+
+            # calculate cost
+            cost = mean_squared_error(a_2, self.train_y)
+            errors.append(cost)
+            # if cost < 1:
+            #     break
+
+            # back propagation
+            # d_b2 = a_2 * (1 - a_2) * 2 * (a_2 - self.train_y)
+            # d_a2 = self.w2 * d_b2
+
+            # d_b1 = a_1 * (1 - a_1) * 2 * (a_2 - self.train_y)
+            d_w1 =(a_2 - self.train_y)*a_2 *(1-a_2)
+
+            d_w2 = np.dot(d_w1, self.w2.T) * a_1 * (1 - a_1)
+
+            # d_a1 = self.w1 * d_b1
+
+            W2_update = np.dot(a_1.T, d_w1) / self.N
+            W1_update = np.dot(self.train_x.T, d_w2) / self.N
+            # correction
+            self.w2 -= self.learning_rate * W2_update
+            self.w1 -= self.learning_rate * W1_update
+        #
+            iterNumber += 1
+
+            # E1 = A2 - self.train_y
+            # dW1 = E1 * A2 * (1 - A2)
+            #
+            # E2 = np.dot(dW1, self.w2.T)
+            # dW2 = E2 * A1 * (1 - A1)
+            #
+            # # weight updates
+            # N=self.train_y.size
+            # W2_update = np.dot(A1.T, dW1) / N
+            # W1_update = np.dot(self.train_x.T, dW2) / N
+            #
+            # self.w2 = self.w2 - self.learning_rate * W2_update
+            # self.w1 = self.w1 - self.learning_rate * W1_update
+
+    def test(self, DataSetPath: str, condition: bool) -> list:
+        DataSet = ParseJson(DataSetPath, condition)
+
+        test_x = np.asarray([[x, y] for x, y, z in DataSet])
+        test_y = np.asarray([z if z == 1 else 0 for x, y, z in DataSet])
+        test_y = np.asarray([[1, 0] if z == 1 else [0, 1] for z in test_y])
+
+        Z1 = np.dot(test_x, self.w1)
+        A1 = sigmoid(Z1)
+
+        # on output layer
+        Z2 = np.dot(A1, self.w2)
+        A2 = sigmoid(Z2)
+        mse = mean_squared_error(A2, test_y)
+        acc = accuracy(A2, test_y)
+        print()
+
+
+
+if __name__ == '__main__':
+    model = Backpropagation("dataSets/dataSet2", True)
+    model.train()
+    model.test("dataSets/test2",True)
+    # plotPoints("dataSets/dataSet2")
+    # print(model.valid("dataSets/dataSet1", True))
+    # print(model.valid("dataSets/dataSet2", True))
+    # print(model.valid("dataSets/dataSet3", True))
+
+    # model = Backpropagation("dataSets/dataSet1", False)
+    # model.train()
+    # print(model.valid("dataSets/dataSet1", False))
+    # print(model.valid("dataSets/dataSet2", False))
+    # print(model.valid("dataSets/dataSet3", False))
