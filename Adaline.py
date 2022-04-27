@@ -3,28 +3,82 @@ from os.path import exists
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import sklearn.metrics as met
+import seaborn as sns
 
 
 def plotPoints(DataSetPath):
-    DataSet = ParseJson(DataSetPath, False)
+    DataSet = ParseJson("dataSets/test2", True)
+    adaline = Adaline(DataSetPath, True)
+    adaline.train()
+    test = adaline.test("dataSets/test2", True)
+    fig, axes = plt.subplots(1, 2)
     x_1 = []
     y_1 = []
     x_0 = []
     y_0 = []
-    fig = plt.figure()
     for row in DataSet:
-        if row[1] > 1:
+        if row[2] == 1:
             x_1.append(row[0])
             y_1.append(row[1])
         else:
             x_0.append(row[0])
             y_0.append(row[1])
-    # fig.add_artist(lines.Line2D([-100, 0], [100, 0]))
-    # fig.add_artist(lines.Line2D([0, -100], [0, 100]))
-    plt.scatter(x_1, y_1, color="green")
-    plt.scatter(x_0, y_0, color="red")
-    plt.plot([100, -100], [0, 0], color='k')
-    plt.plot([0, 0], [100, -100], color='k')
+    axes[0].scatter(x_0, y_0, color="red")
+    axes[0].scatter(x_1, y_1, color="green")
+    x_test_1 = []
+    y_test_1 = []
+    x_test_0 = []
+    y_test_0 = []
+    for row in test:
+        if row[2] == 1:
+            x_test_1.append(row[0])
+            y_test_1.append(row[1])
+        else:
+            x_test_0.append(row[0])
+            y_test_0.append(row[1])
+    axes[1].scatter(x_test_0, y_test_0, color="red")
+    axes[1].scatter(x_test_1, y_test_1, color="green")
+    axes[0].plot([100, -100], [0, 0], color='k')
+    axes[0].plot([0, 0], [100, -100], color='k')
+    axes[1].plot([100, -100], [0, 0], color='k')
+    axes[1].plot([0, 0], [100, -100], color='k')
+    axes[0].title.set_text("Correct answer")
+    axes[1].title.set_text("predicted answer")
+    plt.suptitle("True is when y > 1, test 2")
+    plt.savefig("conditionATest2.jpg")
+    plt.show()
+
+
+def createConfusionMatrix(DataSetPath):
+    DataSet = ParseJson("dataSets/test2", True)
+    # train on DataSetPath
+    adaline = Adaline(DataSetPath, True)
+    adaline.train()
+    test = adaline.test("dataSets/test2", True)
+    target = [row[2] for row in DataSet]
+    pred = [row[2] for row in test]
+    conf = met.confusion_matrix(target, pred)
+    conf_mat = np.zeros((2, 2))
+    try:
+        for i in range(2):
+            for j in range(2):
+                conf_mat[i, j] = conf[i, j]
+    except IndexError as e:
+        pass
+    conf = conf_mat
+    labels = ['True Neg\n' + str(conf[0, 0]), 'False Pos\n' + str(conf[0, 1]), 'False Neg\n' + str(conf[1, 0]),
+              'True Pos\n' + str(conf[1, 1])]
+    labels = np.asarray(labels).reshape(2, 2)
+    ax = sns.heatmap(conf, annot=labels, fmt='', cmap='Blues')
+
+    ax.set_title('Confusion matrix for first condition on test2\n')
+    ax.set_xlabel('Predicted Values')
+    ax.set_ylabel('Actual Values ')
+
+    ax.xaxis.set_ticklabels(['False', 'True'])
+    ax.yaxis.set_ticklabels(['False', 'True'])
+    plt.savefig("confMatTest2CondA.jpg")
     plt.show()
 
 
@@ -184,3 +238,4 @@ if __name__ == '__main__':
     print(model.valid("dataSets/dataSet1", False))
     print(model.valid("dataSets/dataSet2", False))
     print(model.valid("dataSets/dataSet3", False))
+
