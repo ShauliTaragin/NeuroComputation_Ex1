@@ -97,3 +97,12 @@ def ParseJson(path: str, condition: bool):
                         single_point = (p['x'], p['y'], -1)
                     points.append(single_point)
     return points
+class Backpropagation:
+    def __init__( self, jsonfile: str, condition: bool):
+        # class member points which is a list of points. each point is a tuple ->(x,y, value 1 or -1)
+        self.points = []
+        self.w1 = 0
+        self.w2 = 0
+        self.b = 0
+        # read the points from the json file
+        self.points = ParseJson(jsonfile, condition)
