@@ -102,9 +102,8 @@ def ParseJson(path: str, condition: bool):
     return points
 
 
-def neuron_diagram(classifier, x, i, layer, output):
-    neuron_index = 0
-    for neuron in layer:
+def neuron_diagram(classifier, x, i, curr_layer, output_y):
+    for neuron in curr_layer:
         x_true = x[neuron == 1, 1]
         y_true = x[neuron == 1, 0]
         x_false = x[neuron == -1, 1]
@@ -112,8 +111,7 @@ def neuron_diagram(classifier, x, i, layer, output):
         plt.scatter(x=x_true, y=y_true, c='yellow')
         plt.scatter(x=x_false, y=y_false, c='green')
         plt.show()
-        neuron_index += 1
-    if output:
+    if output_y:
         output_layer = forward(classifier, x)
         output_layer_x_true = x[output_layer == 1, 1]
         output_layer_y_true = x[output_layer == 1, 0]
