@@ -118,8 +118,8 @@ class Backpropagation:
         self.learning_rate = 0.1
         np.random.seed(10)
 
-        self.w1 = np.random.normal(scale=0.5, size=(2, 2))
-        self.w2 = np.random.normal(scale=0.5, size=(2, 2))
+        self.w1 = np.random.normal(scale=0.5, size=(2, 8))
+        self.w2 = np.random.normal(scale=0.5, size=(8, 2))
 
         # read the points from the json file
         self.points = ParseJson(jsonfile, condition)
@@ -131,8 +131,7 @@ class Backpropagation:
     def train(self):
         iterNumber = 0
         errors = []
-        while iterNumber < 5000:
-            print(iterNumber)
+        while iterNumber < 10000:
             # feed forward
             z_1 = np.dot(self.train_x, self.w1)
             a_1 = sigmoid(z_1)
@@ -171,6 +170,7 @@ class Backpropagation:
         A2 = sigmoid(Z2)
         mse = mean_squared_error(A2, test_y)
         acc = accuracy(A2, test_y)
+        print(acc)
         return A2, mse, acc
 
     # def valid(self, DataSetPath: str, condition: bool) -> float:
@@ -182,9 +182,9 @@ class Backpropagation:
 
 
 if __name__ == '__main__':
-    model = Backpropagation("dataSets/dataSet2", True)
+    model = Backpropagation("dataSets/dataSet4", False)
     model.train()
-    model.test("dataSets/test2", True)
+    model.test("dataSets/test2", False)
     # plotPoints("dataSets/dataSet2")
     # print(model.valid("dataSets/dataSet1", True))
     # print(model.valid("dataSets/dataSet2", True))
