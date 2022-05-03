@@ -7,6 +7,7 @@ from sklearn import metrics
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network._base import ACTIVATIONS
 
+
 def plotPoints(DataSetPath):
     DataSet = ParseJson(DataSetPath, False)
     x_1 = []
@@ -101,13 +102,34 @@ def ParseJson(path: str, condition: bool):
     return points
 
 
+def neuron_diagram(classifier, x, i, layer, output):
+    neuron_index = 0
+    for neuron in layer:
+        x_true = x[neuron == 1, 1]
+        y_true = x[neuron == 1, 0]
+        x_false = x[neuron == -1, 1]
+        y_false = x[neuron == -1, 0]
+        plt.scatter(x=x_true, y=y_true, c='yellow')
+        plt.scatter(x=x_false, y=y_false, c='green')
+        plt.show()
+        neuron_index += 1
+    if output:
+        output_layer = forward(classifier, x)
+        output_layer_x_true = x[output_layer == 1, 1]
+        output_layer_y_true = x[output_layer == 1, 0]
+        output_layer_x_false = x[output_layer == -1, 1]
+        output_layer_y_false = x[output_layer == -1, 0]
+        plt.scatter(x=output_layer_x_true, y=output_layer_y_true, c='yellow')
+        plt.scatter(x=output_layer_x_false, y=output_layer_y_false, c='green')
+        plt.show()
+
+
 def forward(classifier, X, layers=None):
     if layers is None or layers == 0:
         layers = classifier.n_layers_
 
     # Initialize first layer
     activation = X
-
     # Forward propagate
     hidden_activation = ACTIVATIONS[classifier.activation]
     for i in range(layers - 1):
@@ -122,6 +144,8 @@ def forward(classifier, X, layers=None):
         return ans
     hidden_activation(activation)
     return classifier._label_binarizer.inverse_transform(activation)
+
+
 class MODEL:
     def __init__(self, jsonfile: str, condition: bool):
         # class member points which is a list of points. each point is a tuple ->(x,y, value 1 or -1)
@@ -138,13 +162,14 @@ class MODEL:
         # self.train_y = np.asarray([[1, 0] if z == 1 else [0, 1] for z in self.train_y])
         self.N = self.train_y.size
 
+
 if __name__ == '__main__':
     model = MODEL("dataSets/test2", False)
-    clf = MLPClassifier(solver= 'adam',
-                    hidden_layer_sizes=(4, 8),
-                    max_iter = 100,
-                    activation='relu',
-                    random_state=42)
+    clf = MLPClassifier(solver='adam',
+                        hidden_layer_sizes=(4, 8),
+                        max_iter=100,
+                        activation='relu',
+                        random_state=42)
 
     clf.fit(model.train_x, model.train_y)
     # double = model.test("dataSets/test", False)
