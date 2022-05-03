@@ -1,4 +1,5 @@
 import json
+import random
 from os.path import exists
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -116,40 +117,59 @@ class Backpropagation:
     def __init__(self, jsonfile: str, condition: bool):
         # class member points which is a list of points. each point is a tuple ->(x,y, value 1 or -1)
         self.learning_rate = 0.1
-        np.random.seed(10)
+        np.random.seed(23)
 
         self.w1 = np.random.normal(scale=0.5, size=(2, 8))
-        self.w2 = np.random.normal(scale=0.5, size=(8, 2))
+        self.w2 = np.random.normal(scale=0.5, size=(8, 4))
+        self.w3 = np.random.normal(scale=0.5, size=(4, 2))
+        self.w4 = np.random.normal(scale=0.5, size=(2, 1))
 
         # read the points from the json file
         self.points = ParseJson(jsonfile, condition)
+        random.shuffle(self.points)
         self.train_x = np.asarray([[x, y] for x, y, z in self.points])
-        self.train_y = np.asarray([[z] if z == 1 else [0] for x, y, z in self.points])
-        self.train_y = np.asarray([[1, 0] if z == 1 else [0, 1] for z in self.train_y])
+        self.train_y = np.asarray([[z] for x, y, z in self.points])
+        # self.train_y = np.asarray([[1, 0] if z == 1 else [0, 1] for z in self.train_y])
         self.N = self.train_y.size
 
     def train(self):
         iterNumber = 0
         errors = []
-        while iterNumber < 10000:
+        while iterNumber < 5000:
             # feed forward
+            print(iterNumber)
             z_1 = np.dot(self.train_x, self.w1)
             a_1 = sigmoid(z_1)
 
             z_2 = np.dot(a_1, self.w2)
             a_2 = sigmoid(z_2)
 
+            z_3 = np.dot(a_2, self.w3)
+            a_3 = sigmoid(z_3)
+
+            z_4 = np.dot(a_3, self.w4)
+            a_4 = sigmoid(z_4)
             # calculate cost
-            cost = mean_squared_error(a_2, self.train_y)
+            cost = mean_squared_error(a_4, self.train_y)
             errors.append(cost)
+            # if len(errors) >= 2 and errors[-1] > errors[-2]:
+            #     break
 
             # back propagation
-            d_w1 = (a_2 - self.train_y) * a_2 * (1 - a_2)
-            d_w2 = np.dot(d_w1, self.w2.T) * a_1 * (1 - a_1)
+            # this weights are listed backwards i.e d_w1 is between the output and the 1 from last layer
+            d_w1 = (a_4 - self.train_y) * a_4 * (1 - a_4)
+            d_w2 = np.dot(d_w1, self.w4.T) * a_3 * (1 - a_3)
+            d_w3 = np.dot(d_w2, self.w3.T) * a_2 * (1 - a_2)
+            d_w4 = np.dot(d_w3, self.w2.T) * a_1 * (1 - a_1)
 
-            W2_update = np.dot(a_1.T, d_w1) / self.N
-            W1_update = np.dot(self.train_x.T, d_w2) / self.N
+            W4_update = np.dot(a_3.T, d_w1) / self.N
+            W3_update = np.dot(a_2.T, d_w2) / self.N
+            W2_update = np.dot(a_1.T, d_w3) / self.N
+            W1_update = np.dot(self.train_x.T, d_w4) / self.N
+
             # correction
+            self.w4 -= self.learning_rate * W4_update
+            self.w3 -= self.learning_rate * W3_update
             self.w2 -= self.learning_rate * W2_update
             self.w1 -= self.learning_rate * W1_update
 
@@ -157,21 +177,32 @@ class Backpropagation:
 
     def test(self, DataSetPath: str, condition: bool):
         DataSet = ParseJson(DataSetPath, condition)
-
         test_x = np.asarray([[x, y] for x, y, z in DataSet])
-        test_y = np.asarray([z if z == 1 else 0 for x, y, z in DataSet])
+        test_y = np.asarray([[z] for x, y, z in DataSet])
         test_y = np.asarray([[1, 0] if z == 1 else [0, 1] for z in test_y])
-
         Z1 = np.dot(test_x, self.w1)
         A1 = sigmoid(Z1)
 
-        # on output layer
+        # hidden layers
         Z2 = np.dot(A1, self.w2)
         A2 = sigmoid(Z2)
-        mse = mean_squared_error(A2, test_y)
-        acc = accuracy(A2, test_y)
+
+        # on output layer
+        Z3 = np.dot(A2, self.w3)
+        A3 = sigmoid(Z3)
+
+        # Z4 = np.dot(A3, self.w4)
+        # A4 = sigmoid(Z4)
+        # A4 = [1 if x > 0.5 else -1 for x in A4]
+
+        mse = mean_squared_error(A3, test_y)
+        rightAnswer = 0
+        # for i in range(len(test_y)):
+        #     if A4[i] == test_y[1]:
+        #         rightAnswer += 1
+        acc = accuracy(A3, test_y)
         print(acc)
-        return A2, mse, acc
+        return A3
 
     # def valid(self, DataSetPath: str, condition: bool) -> float:
     #     DataSet = ParseJson(DataSetPath, condition)
