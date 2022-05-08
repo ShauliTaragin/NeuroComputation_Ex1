@@ -246,7 +246,7 @@ def Run_on_Adaline(x_train, y_train, clsfr, condition):
 
 
 class MODEL:
-    def init(self, jsonfile: str, condition: bool):
+    def __init__(self, jsonfile: str, condition: bool):
         # class member points which is a list of points. each point is a tuple ->(x,y, value 1 or -1)
         self.learning_rate = 0.1
         np.random.seed(10)
@@ -262,8 +262,8 @@ class MODEL:
         self.N = self.train_y.size
 
 
-def part_c(data_set):
-    model = MODEL(data_set, False)
+def part_c(data_set: str):
+    model = MODEL(data_set,True)
     clf = MLPClassifier(solver='adam',
                         hidden_layer_sizes=(4, 8),
                         max_iter=100,
@@ -277,6 +277,10 @@ def part_c(data_set):
         else:
             neuron_diagram(clf, model.train_x, layer - 1, layer_i, False)
     print("Score of correct prediction: ", clf.score(model.train_x, model.train_y) * 100, "%")
+    test = ParseJson("dataSets/test1", True)
+    test_x = [[x, y] for x, y, z in test]
+    test_y = [[z] if z == 1 else 0 for x, y, z in test]
+    print(clf.score(test_x, test_y))
 
 
 def part_d(data_set):
@@ -297,11 +301,9 @@ def part_d(data_set):
     Run_on_Adaline(model.train_x, model.train_y, clf, "B")
 
 
-if __name__ == '_main_':
-
-
-    part_c("dataSets/test1")
-    part_d("dataSets/test1")
+if __name__ == '__main__':
+    part_c("dataSets/dataSet4")
+    # part_d("dataSets/test1")
     # createConfusionMatrix("dataSets/dataSet4")
     # model = MODEL("dataSets/test1", True)
     # clf = MLPClassifier(solver='adam',
