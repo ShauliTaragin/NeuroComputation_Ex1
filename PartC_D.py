@@ -154,8 +154,8 @@ def neuron_diagram(classifier, x, i, curr_layer, output_y):
         y_true = x[neuron == 1, 0]
         x_false = x[neuron == 0, 1]
         y_false = x[neuron == 0, 0]
-        plt.scatter(x=x_true, y=y_true, c='yellow')
-        plt.scatter(x=x_false, y=y_false, c='green')
+        plt.scatter(x=x_true, y=y_true, c='yellow',marker="1")
+        plt.scatter(x=x_false, y=y_false, c='green',marker="2")
         plt.title(f"neuron: {neuron_counter} in layer {i}")
         plt.legend(loc='upper right',labels=['1','-1'],fancybox=False)
         plt.savefig(f"neuron: {neuron_counter} in layer {i}")
@@ -167,8 +167,8 @@ def neuron_diagram(classifier, x, i, curr_layer, output_y):
         output_layer_y_true = x[output_layer == 1, 0]
         output_layer_x_false = x[output_layer == 0, 1]
         output_layer_y_false = x[output_layer == 0, 0]
-        plt.scatter(x=output_layer_x_true, y=output_layer_y_true, c='yellow')
-        plt.scatter(x=output_layer_x_false, y=output_layer_y_false, c='green')
+        plt.scatter(x=output_layer_x_true, y=output_layer_y_true, c='yellow',marker="1")
+        plt.scatter(x=output_layer_x_false, y=output_layer_y_false, c='green',marker="2")
         plt.title(f"neuron: {neuron_counter} in layer {i}")
         plt.legend(loc='upper right', labels=['1', '-1'], fancybox=False)
         plt.savefig(f"neuron: {neuron_counter} in layer {i}")
@@ -207,9 +207,9 @@ def find_layer(mlp, x, layers_num):
 def Run_on_Adaline(x_train, y_train, clsfr, condition):
     amount_of_layers = clsfr.n_layers_
     # draw the diagram for each layer meaning which point was classified as what
-    for i in range(amount_of_layers - 1):
-        i_th_hidden_layer = find_layer(clsfr, x_train, i + 1)
-        neuron_diagram(clsfr, x_train, i, i_th_hidden_layer, False)
+    # for i in range(amount_of_layers - 1):
+    #     i_th_hidden_layer = find_layer(clsfr, x_train, i + 1)
+    #     neuron_diagram(clsfr, x_train, i, i_th_hidden_layer, False)
 
     # get last layer from backpropagation
     get_last_layer = find_layer(clsfr, x_train, clsfr.n_layers_ - 1)
@@ -230,7 +230,17 @@ def Run_on_Adaline(x_train, y_train, clsfr, condition):
     classifier_adaline = Adaline(epochs=2, eta=0.02, random_seed=42)
     classifier_adaline.fit(adaline_x_train, y_train.astype(int))
     predict_adaline = classifier_adaline.predict(adaline_x_train)
+    plt.scatter(x=x_train[predict_adaline == 0, 1], y=x_train[predict_adaline == 0, 0],
+                alpha=0.9, c='purple',
+                marker='<', label=-1.0)
 
+    plt.scatter(x=x_train[predict_adaline == 1, 1], y=x_train[predict_adaline == 1, 0],
+                alpha=0.9, c='red',
+                marker='>', label=1.0)
+
+    plt.title("Part D: MLP && Adaline Algorithms (Condition " + condition + ")")
+    plt.legend(loc='upper right')
+    plt.show()
     print("Score of correct prediction Part D: {} %".format(classifier_adaline.score(adaline_x_train, y_train) * 100))
 
 
@@ -250,32 +260,42 @@ class MODEL:
         # self.train_y = np.asarray([[1, 0] if z == 1 else [0, 1] for z in self.train_y])
         self.N = self.train_y.size
 
-
-if __name__ == '__main__':
-    # createConfusionMatrix("dataSets/dataSet4")
-    model = MODEL("dataSets/test2", False)
+def part_c(data_set):
+    model = MODEL(data_set, False)
     clf = MLPClassifier(solver='adam',
                         hidden_layer_sizes=(4, 8),
                         max_iter=100,
                         activation='relu',
                         random_state=42)
-
     clf.fit(model.train_x, model.train_y)
-    # for layer in range(2, clf.n_layers_):
-    #     layer_i = find_layer(clf, model.train_x, layer)
-    #     if layer == clf.n_layers_ - 1:
-    #         neuron_diagram(clf, model.train_x, layer - 1, layer_i, True)
-    #     else:
-    #         neuron_diagram(clf, model.train_x, layer - 1, layer_i, False)
-    # double = model.test("dataSets/test", False)
-    # x_test = double[0]
-    # y_test = double[1]
-    # y_predict = clf.predict(x_test)
-
-    # layer_i = forward(clf, model.train_x, 2)
-    # print("Accuracy of BP (train):  %.2f precent" % (metrics.accuracy_score(y_test, y_predict) * 100))
+    for layer in range(2, clf.n_layers_):
+        layer_i = find_layer(clf, model.train_x, layer)
+        if layer == clf.n_layers_ - 1:
+            neuron_diagram(clf, model.train_x, layer - 1, layer_i, True)
+        else:
+            neuron_diagram(clf, model.train_x, layer - 1, layer_i, False)
     print("Score of correct prediction: ", clf.score(model.train_x, model.train_y) * 100, "%")
+def part_d(data_set):
+    model = MODEL(data_set, False)
+    clf = MLPClassifier(solver='adam',
+                        hidden_layer_sizes=(4, 8),
+                        max_iter=100,
+                        activation='relu',
+                        random_state=42)
+    clf.fit(model.train_x, model.train_y)
+    for layer in range(2, clf.n_layers_):
+        layer_i = find_layer(clf, model.train_x, layer)
+        if layer == clf.n_layers_ - 1:
+            neuron_diagram(clf, model.train_x, layer - 1, layer_i, True)
+        else:
+            neuron_diagram(clf, model.train_x, layer - 1, layer_i, False)
+    print("Score of correct prediction: ", clf.score(model.train_x, model.train_y) * 100, "%")
+    Run_on_Adaline(model.train_x, model.train_y, clf, "B")
 
+
+if __name__ == '__main__':
+    # part_c("dataSets/test2")
+    part_d("dataSets/test2")
     # layer_i = find_layer(clf, model.train_x, 4)
     # diff=layer_i-layer_f
     # zipped = zip(layer_f, layer_f)
@@ -288,4 +308,3 @@ if __name__ == '__main__':
     # # print("Accuracy of BP (train):  %.2f precent" % (metrics.accuracy_score(y_test, y_predict) * 100))
     # print("Score of correct prediction: ", clf.score(model.train_x, model.train_y) * 100, "%")
 
-    Run_on_Adaline(model.train_x, model.train_y, clf, "B")
