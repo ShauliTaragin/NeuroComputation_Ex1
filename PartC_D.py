@@ -154,7 +154,7 @@ def neuron_diagram(classifier, x, i, curr_layer, output_y):
         plt.scatter(x=x_false, y=y_false, c='green')
         plt.show()
     if output_y:
-        output_layer = forward(classifier, x)
+        output_layer = find_layer(classifier, x)
         output_layer_x_true = x[output_layer == 1, 1]
         output_layer_y_true = x[output_layer == 1, 0]
         output_layer_x_false = x[output_layer == 0, 1]
@@ -220,7 +220,7 @@ if __name__ == '__main__':
 
     clf.fit(model.train_x, model.train_y)
     for layer in range(2, clf.n_layers_):
-        layer_i = forward(clf, model.train_x, layer)
+        layer_i = find_layer(clf, model.train_x, layer)
         if layer == clf.n_layers_ -1:
             neuron_diagram(clf,model.train_x,layer-1,layer_i ,True)
         else:
