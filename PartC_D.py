@@ -3,7 +3,8 @@ from os.path import exists
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn import metrics
+import sklearn.metrics as met
+import seaborn as sns
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network._base import ACTIVATIONS
 
@@ -101,13 +102,54 @@ def ParseJson(path: str, condition: bool):
                     points.append(single_point)
     return points
 
+def createConfusionMatrix(DataSetPath):
+    # DataSet = ParseJson("dataSets/test2", True)
+    # train on DataSetPath
+    model = MODEL(DataSetPath, False)
+    clf = MLPClassifier(solver='adam',
+                        hidden_layer_sizes=(4, 8),
+                        max_iter=100,
+                        activation='relu',
+                        random_state=42)
+
+    clf.fit(model.train_x, model.train_y)
+    # test = adaline.test("dataSets/test2", True)
+    double = ParseJson("dataSets/test2", False)
+    x_test = [[x,y] for x,y,z in double]
+    y_test =  [[z] for x,y,z in double]
+    y_predict = clf.predict(x_test)
+    y_predict = [x if x == 1 else -1 for x in y_predict]
+    # target = [row[2] for row in DataSet]
+    # pred = [row[2] for row in test]
+    conf = met.confusion_matrix(y_test, y_predict)
+    conf_mat = np.zeros((2, 2))
+    try:
+        for i in range(2):
+            for j in range(2):
+                conf_mat[i, j] = conf[i, j]
+    except IndexError as e:
+        pass
+    conf = conf_mat
+    labels = ['True Neg\n' + str(conf[0, 0]), 'False Pos\n' + str(conf[0, 1]), 'False Neg\n' + str(conf[1, 0]),
+              'True Pos\n' + str(conf[1, 1])]
+    labels = np.asarray(labels).reshape(2, 2)
+    ax = sns.heatmap(conf, annot=labels, fmt='', cmap='Blues')
+
+    ax.set_title('Confusion matrix for first condition on test2\n')
+    ax.set_xlabel('Predicted Values')
+    ax.set_ylabel('Actual Values ')
+
+    ax.xaxis.set_ticklabels(['False', 'True'])
+    ax.yaxis.set_ticklabels(['False', 'True'])
+    plt.savefig("confMatTest2CondA.jpg")
+    plt.show()
 
 def neuron_diagram(classifier, x, i, curr_layer, output_y):
     for neuron in curr_layer:
         x_true = x[neuron == 1, 1]
         y_true = x[neuron == 1, 0]
-        x_false = x[neuron == -1, 1]
-        y_false = x[neuron == -1, 0]
+        x_false = x[neuron == 0, 1]
+        y_false = x[neuron == 0, 0]
         plt.scatter(x=x_true, y=y_true, c='yellow')
         plt.scatter(x=x_false, y=y_false, c='green')
         plt.show()
@@ -115,8 +157,8 @@ def neuron_diagram(classifier, x, i, curr_layer, output_y):
         output_layer = forward(classifier, x)
         output_layer_x_true = x[output_layer == 1, 1]
         output_layer_y_true = x[output_layer == 1, 0]
-        output_layer_x_false = x[output_layer == -1, 1]
-        output_layer_y_false = x[output_layer == -1, 0]
+        output_layer_x_false = x[output_layer == 0, 1]
+        output_layer_y_false = x[output_layer == 0, 0]
         plt.scatter(x=output_layer_x_true, y=output_layer_y_true, c='yellow')
         plt.scatter(x=output_layer_x_false, y=output_layer_y_false, c='green')
         plt.show()
@@ -162,6 +204,7 @@ class MODEL:
 
 
 if __name__ == '__main__':
+    createConfusionMatrix("dataSets/dataSet4")
     model = MODEL("dataSets/test2", False)
     clf = MLPClassifier(solver='adam',
                         hidden_layer_sizes=(4, 8),
@@ -170,11 +213,17 @@ if __name__ == '__main__':
                         random_state=42)
 
     clf.fit(model.train_x, model.train_y)
+    for layer in range(2, clf.n_layers_):
+        layer_i = forward(clf, model.train_x, layer)
+        if layer == clf.n_layers_ -1:
+            neuron_diagram(clf,model.train_x,layer-1,layer_i ,True)
+        else:
+            neuron_diagram(clf, model.train_x, layer - 1, layer_i, False)
     # double = model.test("dataSets/test", False)
     # x_test = double[0]
     # y_test = double[1]
     # y_predict = clf.predict(x_test)
 
-    layer_i = forward(clf, model.train_x, 2)
+    # layer_i = forward(clf, model.train_x, 2)
     # print("Accuracy of BP (train):  %.2f precent" % (metrics.accuracy_score(y_test, y_predict) * 100))
     print("Score of correct prediction: ", clf.score(model.train_x, model.train_y) * 100, "%")
