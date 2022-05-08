@@ -7,6 +7,7 @@ import sklearn.metrics as met
 import seaborn as sns
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network._base import ACTIVATIONS
+from mlxtend.classifier import Adaline
 
 
 def plotPoints(DataSetPath):
@@ -102,6 +103,7 @@ def ParseJson(path: str, condition: bool):
                     points.append(single_point)
     return points
 
+
 def createConfusionMatrix(DataSetPath):
     # DataSet = ParseJson("dataSets/test2", True)
     # train on DataSetPath
@@ -115,8 +117,8 @@ def createConfusionMatrix(DataSetPath):
     clf.fit(model.train_x, model.train_y)
     # test = adaline.test("dataSets/test2", True)
     double = ParseJson("dataSets/test2", False)
-    x_test = [[x,y] for x,y,z in double]
-    y_test =  [[z] for x,y,z in double]
+    x_test = [[x, y] for x, y, z in double]
+    y_test = [[z] for x, y, z in double]
     y_predict = clf.predict(x_test)
     y_predict = [x if x == 1 else -1 for x in y_predict]
     # target = [row[2] for row in DataSet]
@@ -144,6 +146,7 @@ def createConfusionMatrix(DataSetPath):
     plt.savefig("confMatTest2CondA.jpg")
     plt.show()
 
+
 def neuron_diagram(classifier, x, i, curr_layer, output_y):
     neuron_counter = 0
     for neuron in curr_layer:
@@ -159,7 +162,7 @@ def neuron_diagram(classifier, x, i, curr_layer, output_y):
         neuron_counter += 1
         plt.show()
     if output_y:
-        output_layer = forward(classifier, x)
+        output_layer = find_layer(classifier, x, 0)
         output_layer_x_true = x[output_layer == 1, 1]
         output_layer_y_true = x[output_layer == 1, 0]
         output_layer_x_false = x[output_layer == 0, 1]
@@ -172,26 +175,63 @@ def neuron_diagram(classifier, x, i, curr_layer, output_y):
         plt.show()
 
 
-def forward(classifier, X, layers=None):
-    if layers is None or layers == 0:
-        layers = classifier.n_layers_
+def find_layer(mlp, x, layers_num):
+    hidden_act_func = ACTIVATIONS[mlp.activation]
+    neurons_activation = x
+    layers = []
 
-    # Initialize first layer
-    activation = X
-    # Forward propagate
-    hidden_activation = ACTIVATIONS[classifier.activation]
-    for i in range(layers - 1):
-        weight_i, bias_i = classifier.coefs_[i], classifier.intercepts_[i]
-        activation = (activation @ weight_i) + bias_i
-        if i != layers - 2:
-            hidden_activation(activation)
-    if activation.shape[1] > 1:
-        ans = []
-        for j in range(activation.shape[1]):
-            ans.append(classifier._label_binarizer.inverse_transform(activation[:, j]))
-        return ans
-    hidden_activation(activation)
-    return classifier._label_binarizer.inverse_transform(activation)
+    # feed forward the layers
+    for i in range(0, layers_num - 2):
+        weight, bias = mlp.coefs_[i], mlp.intercepts_[i]
+        neurons_activation = np.matmul(neurons_activation, weight) + bias
+        hidden_act_func(neurons_activation)
+
+    # in the last iterate we wont activate the function
+    if layers_num > 1:
+        weight, bias = mlp.coefs_[layers_num - 2], mlp.intercepts_[layers_num - 2]
+        neurons_activation = np.matmul(neurons_activation, weight) + bias
+
+    # check if there are 2 or more
+    if neurons_activation.shape[1] >= 2:
+        for i in range(0, neurons_activation.shape[1]):
+            layers.append(mlp._label_binarizer.inverse_transform(neurons_activation[:, i]))
+        return layers
+
+    hidden_act_func(neurons_activation)
+    layer = mlp._label_binarizer.inverse_transform(neurons_activation)
+    return layer
+
+
+# We have already implemented adaline however since we are using a built in library for backpropagation
+# to stay on the same track we will use the adaline that fits our backpropagation i.e A library
+def Run_on_Adaline(x_train, y_train, clsfr, condition):
+    amount_of_layers = clsfr.n_layers_
+    # draw the diagram for each layer meaning which point was classified as what
+    for i in range(amount_of_layers - 1):
+        i_th_hidden_layer = find_layer(clsfr, x_train, i + 1)
+        neuron_diagram(clsfr, x_train, i, i_th_hidden_layer, False)
+
+    # get last layer from backpropagation
+    get_last_layer = find_layer(clsfr, x_train, clsfr.n_layers_ - 1)
+    # get_last_layer = [x if x == 1 else -1 for x in get_last_layer]
+    adaline_x_train = np.array([get_last_layer[0], get_last_layer[1]]).T
+
+    # change y_train to zeros and positive numbers inorder to feed adaline
+    helper = np.arange(1000)
+    y_train = np.asarray([0 if x < 0 else x for x in y_train])
+    for i in range(len(helper)):
+        helper[i] = y_train[i]
+    y_train = helper
+    y_train=list(y_train)
+    y_train=np.asarray(y_train)
+    np.resize(y_train,(1000))
+
+    # y_train[y_train<0] = 0
+    classifier_adaline = Adaline(epochs=2, eta=0.02, random_seed=42)
+    classifier_adaline.fit(adaline_x_train, y_train.astype(int))
+    predict_adaline = classifier_adaline.predict(adaline_x_train)
+
+    print("Score of correct prediction Part D: {} %".format(classifier_adaline.score(adaline_x_train, y_train) * 100))
 
 
 class MODEL:
@@ -212,7 +252,7 @@ class MODEL:
 
 
 if __name__ == '__main__':
-    createConfusionMatrix("dataSets/dataSet4")
+    # createConfusionMatrix("dataSets/dataSet4")
     model = MODEL("dataSets/test2", False)
     clf = MLPClassifier(solver='adam',
                         hidden_layer_sizes=(4, 8),
@@ -221,12 +261,12 @@ if __name__ == '__main__':
                         random_state=42)
 
     clf.fit(model.train_x, model.train_y)
-    for layer in range(2, clf.n_layers_):
-        layer_i = forward(clf, model.train_x, layer)
-        if layer == clf.n_layers_ -1:
-            neuron_diagram(clf,model.train_x,layer-1,layer_i ,True)
-        else:
-            neuron_diagram(clf, model.train_x, layer - 1, layer_i, False)
+    # for layer in range(2, clf.n_layers_):
+    #     layer_i = find_layer(clf, model.train_x, layer)
+    #     if layer == clf.n_layers_ - 1:
+    #         neuron_diagram(clf, model.train_x, layer - 1, layer_i, True)
+    #     else:
+    #         neuron_diagram(clf, model.train_x, layer - 1, layer_i, False)
     # double = model.test("dataSets/test", False)
     # x_test = double[0]
     # y_test = double[1]
@@ -235,3 +275,17 @@ if __name__ == '__main__':
     # layer_i = forward(clf, model.train_x, 2)
     # print("Accuracy of BP (train):  %.2f precent" % (metrics.accuracy_score(y_test, y_predict) * 100))
     print("Score of correct prediction: ", clf.score(model.train_x, model.train_y) * 100, "%")
+
+    # layer_i = find_layer(clf, model.train_x, 4)
+    # diff=layer_i-layer_f
+    # zipped = zip(layer_f, layer_f)
+    # ans = []
+    # for a, b in zipped:
+    #     ans.append(a - b)
+    # s=0
+    # for a in ans:
+    #     s+=a.sum()
+    # # print("Accuracy of BP (train):  %.2f precent" % (metrics.accuracy_score(y_test, y_predict) * 100))
+    # print("Score of correct prediction: ", clf.score(model.train_x, model.train_y) * 100, "%")
+
+    Run_on_Adaline(model.train_x, model.train_y, clf, "B")
