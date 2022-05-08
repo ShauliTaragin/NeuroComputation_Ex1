@@ -145,6 +145,7 @@ def createConfusionMatrix(DataSetPath):
     plt.show()
 
 def neuron_diagram(classifier, x, i, curr_layer, output_y):
+    neuron_counter = 0
     for neuron in curr_layer:
         x_true = x[neuron == 1, 1]
         y_true = x[neuron == 1, 0]
@@ -152,6 +153,10 @@ def neuron_diagram(classifier, x, i, curr_layer, output_y):
         y_false = x[neuron == 0, 0]
         plt.scatter(x=x_true, y=y_true, c='yellow')
         plt.scatter(x=x_false, y=y_false, c='green')
+        plt.title(f"neuron: {neuron_counter} in layer {i}")
+        plt.legend(loc='upper right',labels=['1','-1'],fancybox=False)
+        plt.savefig(f"neuron: {neuron_counter} in layer {i}")
+        neuron_counter += 1
         plt.show()
     if output_y:
         output_layer = forward(classifier, x)
@@ -161,6 +166,9 @@ def neuron_diagram(classifier, x, i, curr_layer, output_y):
         output_layer_y_false = x[output_layer == 0, 0]
         plt.scatter(x=output_layer_x_true, y=output_layer_y_true, c='yellow')
         plt.scatter(x=output_layer_x_false, y=output_layer_y_false, c='green')
+        plt.title(f"neuron: {neuron_counter} in layer {i}")
+        plt.legend(loc='upper right', labels=['1', '-1'], fancybox=False)
+        plt.savefig(f"neuron: {neuron_counter} in layer {i}")
         plt.show()
 
 
