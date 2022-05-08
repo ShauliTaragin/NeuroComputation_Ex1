@@ -7,7 +7,7 @@ import sklearn.metrics as met
 import seaborn as sns
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network._base import ACTIVATIONS
-
+from mlxtend.classifier import Adaline
 
 def plotPoints(DataSetPath):
     DataSet = ParseJson(DataSetPath, False)
@@ -197,11 +197,11 @@ def Run_on_Adaline(x_train, y_train, clsfr, condition):
     amount_of_layers = clsfr.n_layers_
     # draw the diagram for each layer meaning which point was classified as what
     for i in range(amount_of_layers-1):
-        i_th_hidden_layer = forward(clsfr, x_train, i+1)
-        geometric_diagram(clsfr, x_train, i, i_th_hidden_layer)
+        i_th_hidden_layer = find_layer(clsfr, x_train, i+1)
+        neuron_diagram(clsfr, x_train, i, i_th_hidden_layer)
 
     # get last layer from backpropagation
-    get_last_layer = forward(clsfr, x_train, clsfr.n_layers_-1)
+    get_last_layer = find_layer(clsfr, x_train, clsfr.n_layers_-1)
     adaline_x_train = np.array([get_last_layer[0], get_last_layer[1]]).T
 
     # change y_train to zeros and positive numbers inorder to feed adalin
