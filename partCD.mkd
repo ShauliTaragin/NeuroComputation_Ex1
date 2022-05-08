@@ -1,0 +1,22 @@
+# NeuroComputation Parts C-D
+### Part C - 1
+* Lior Breitman - 212733257
+* Ido Bar - 207765652
+* Shuali Taragin - 209337161
+* Yuval Sandler - 319097036
+    
+    In this part of the exercise we were asked to create a neural network that uses the backpropagtion algorithm for fixing the weight of the edges, and test it on the same condition we had in parts [A-B](https://github.com/LiorBreitman8234/NeuroComputation_Ex1/edit/master/README.md)
+    
+
+
+
+### Part C - 2
+#### Results, tables
+
+
+
+
+
+
+### Part C - 3
+#### Illustrations, discussions 
