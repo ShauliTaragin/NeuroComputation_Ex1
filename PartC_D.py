@@ -6,6 +6,7 @@ import numpy as np
 from sklearn import metrics
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network._base import ACTIVATIONS
+from mlxtend.classifier import Adaline
 
 def plotPoints(DataSetPath):
     DataSet = ParseJson(DataSetPath, False)
@@ -101,27 +102,33 @@ def ParseJson(path: str, condition: bool):
     return points
 
 
-def forward(classifier, X, layers=None):
-    if layers is None or layers == 0:
-        layers = classifier.n_layers_
 
-    # Initialize first layer
-    activation = X
 
-    # Forward propagate
-    hidden_activation = ACTIVATIONS[classifier.activation]
-    for i in range(layers - 1):
-        weight_i, bias_i = classifier.coefs_[i], classifier.intercepts_[i]
-        activation = (activation @ weight_i) + bias_i
-        if i != layers - 2:
-            hidden_activation(activation)
-    if activation.shape[1] > 1:
-        ans = []
-        for j in range(activation.shape[1]):
-            ans.append(classifier._label_binarizer.inverse_transform(activation[:, j]))
-        return ans
-    hidden_activation(activation)
-    return classifier._label_binarizer.inverse_transform(activation)
+
+
+# We have already implemented adaline however since we are using a built in library for backpropagation
+# to stay on the same track we will use the adaline that fits our backpropagation i.e A library
+def Run_on_Adaline(x_train, y_train, clsfr, condition):
+    amount_of_layers = clsfr.n_layers_
+    # draw the diagram for each layer meaning which point was classified as what
+    for i in range(amount_of_layers-1):
+        i_th_hidden_layer = forward(clsfr, x_train, i+1)
+        geometric_diagram(clsfr, x_train, i, i_th_hidden_layer)
+
+    # get last layer from backpropagation
+    get_last_layer = forward(clsfr, x_train, clsfr.n_layers_-1)
+    adaline_x_train = np.array([get_last_layer[0], get_last_layer[1]]).T
+
+    # change y_train to zeros and positive numbers inorder to feed adalin
+    y_train = np.asarray([0 if x < 0 else x for x in y_train])
+
+    classifier_adaline = Adaline(epochs=2, eta=0.02, random_seed=42)
+    classifier_adaline.fit(adaline_x_train, y_train)
+    predict_adaline = classifier_adaline.predict(adaline_x_train)
+
+    print("Score of correct prediction Part D: {} %".format(classifier_adaline.score(adaline_x_train, y_train) * 100))
+
+
 class MODEL:
     def __init__(self, jsonfile: str, condition: bool):
         # class member points which is a list of points. each point is a tuple ->(x,y, value 1 or -1)
@@ -134,7 +141,7 @@ class MODEL:
         # read the points from the json file
         self.points = ParseJson(jsonfile, condition)
         self.train_x = np.asarray([[x, y] for x, y, z in self.points])
-        self.train_y = np.asarray([[z] if z == 1 else [0] for x, y, z in self.points])
+        self.train_y = np.asarray([z if z == 1 else 0 for x, y, z in self.points])
         # self.train_y = np.asarray([[1, 0] if z == 1 else [0, 1] for z in self.train_y])
         self.N = self.train_y.size
 
@@ -155,3 +162,4 @@ if __name__ == '__main__':
     layer_i = forward(clf, model.train_x, 2)
     # print("Accuracy of BP (train):  %.2f precent" % (metrics.accuracy_score(y_test, y_predict) * 100))
     print("Score of correct prediction: ", clf.score(model.train_x, model.train_y) * 100, "%")
+    Run_on_Adaline(model.train_x,  model.train_y, clf, "B")
