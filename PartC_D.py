@@ -147,30 +147,30 @@ def createConfusionMatrix(DataSetPath):
 def neuron_diagram(classifier, x, i, curr_layer, output_y):
     neuron_counter = 0
     for neuron in curr_layer:
-        x_true = x[neuron == 1, 1]
-        y_true = x[neuron == 1, 0]
-        x_false = x[neuron == 0, 1]
-        y_false = x[neuron == 0, 0]
+        x_true = x[neuron == 1, 0]
+        y_true = x[neuron == 1, 1]
+        x_false = x[neuron == 0, 0]
+        y_false = x[neuron == 0, 1]
 
         plt.scatter(x=x_false, y=y_false, c='green', marker='2')
         plt.scatter(x=x_true, y=y_true, c='yellow', marker='1')
         plt.title(f"neuron: {neuron_counter} in layer {i}, condition a test 1")
         plt.legend(loc='upper right', labels=['-1', '1'], fancybox=False)
-        plt.savefig(f"image_cd/neuron: {neuron_counter} in layer {i}, condition a test 1.jpg")
+        plt.savefig(f"image_cd/neuron:{neuron_counter}_in_layer_{i},conditionA,test1.jpg")
         neuron_counter += 1
         plt.show()
     if output_y:
         output_layer = find_layer(classifier, x, classifier.n_layers_)
 
-        output_layer_x_true = x[output_layer == 1, 1]
-        output_layer_y_true = x[output_layer == 1, 0]
-        output_layer_x_false = x[output_layer == 0, 1]
-        output_layer_y_false = x[output_layer == 0, 0]
+        output_layer_x_true = x[output_layer == 1, 0]
+        output_layer_y_true = x[output_layer == 1, 1]
+        output_layer_x_false = x[output_layer == 0, 0]
+        output_layer_y_false = x[output_layer == 0, 1]
         plt.scatter(x=output_layer_x_false, y=output_layer_y_false, c='green', marker='2')
         plt.scatter(x=output_layer_x_true, y=output_layer_y_true, c='yellow', marker='1')
-        plt.title(f"output neuron ,condition a, test 1")
+        plt.title(f"output_neuron,conditionA,test1")
         plt.legend(loc='upper right', labels=['-1', '1'], fancybox=False)
-        plt.savefig(f"image_cd/output neuron, condition a, test 1.jpg")
+        plt.savefig(f"image_cd/output_neuron,conditionA,test1.jpg")
         plt.show()
 
 
@@ -230,17 +230,18 @@ def Run_on_Adaline(x_train, y_train, clsfr, condition):
     classifier_adaline.fit(adaline_x_train, y_train.astype(int))
 
     predict_adaline = classifier_adaline.predict(adaline_x_train)
-    plt.scatter(x=x_train[predict_adaline == 0, 1], y=x_train[predict_adaline == 0, 0],
+    plt.scatter(x=x_train[predict_adaline == 0, 0], y=x_train[predict_adaline == 0, 1],
                 alpha=0.9, c='purple',
                 marker='<', label=-1.0)
 
-    plt.scatter(x=x_train[predict_adaline == 1, 1], y=x_train[predict_adaline == 1, 0],
+    plt.scatter(x=x_train[predict_adaline == 1, 0], y=x_train[predict_adaline == 1, 1],
                 alpha=0.9, c='red',
                 marker='>', label=1.0)
 
-    plt.title("Part D: MLP && Adaline Algorithms (Condition " + condition + ")")
+    plt.title("feeding adaline neuron with MLP data (Condition " + condition + ")")
     plt.legend(loc='upper right')
     plt.show()
+    plt.savefig("image_cd/adaline_classification.jpg")
 
     print("Score of correct prediction Part D: {} %".format(classifier_adaline.score(adaline_x_train, y_train) * 100))
 
@@ -263,27 +264,6 @@ class MODEL:
 
 
 def part_c(data_set: str):
-    model = MODEL(data_set,True)
-    clf = MLPClassifier(solver='adam',
-                        hidden_layer_sizes=(4, 8),
-                        max_iter=100,
-                        activation='relu',
-                        random_state=42)
-    clf.fit(model.train_x, model.train_y)
-    for layer in range(2, clf.n_layers_):
-        layer_i = find_layer(clf, model.train_x, layer)
-        if layer == clf.n_layers_ - 1:
-            neuron_diagram(clf, model.train_x, layer - 1, layer_i, True)
-        else:
-            neuron_diagram(clf, model.train_x, layer - 1, layer_i, False)
-    print("Score of correct prediction: ", clf.score(model.train_x, model.train_y) * 100, "%")
-    test = ParseJson("dataSets/test1", True)
-    test_x = [[x, y] for x, y, z in test]
-    test_y = [[z] if z == 1 else 0 for x, y, z in test]
-    print(clf.score(test_x, test_y))
-
-
-def part_d(data_set):
     model = MODEL(data_set, False)
     clf = MLPClassifier(solver='adam',
                         hidden_layer_sizes=(4, 8),
@@ -297,13 +277,28 @@ def part_d(data_set):
             neuron_diagram(clf, model.train_x, layer - 1, layer_i, True)
         else:
             neuron_diagram(clf, model.train_x, layer - 1, layer_i, False)
-    print("Score of correct prediction: ", clf.score(model.train_x, model.train_y) * 100, "%")
+    test = ParseJson("dataSets/test2", False)
+    test_x = [[x, y] for x, y, z in test]
+    test_y = [[z] if z == 1 else [0] for x, y, z in test]
+    print("Score of correct prediction: ", clf.score(test_x, test_y) * 100, "%")
+
+
+
+
+def part_d(data_set):
+    model = MODEL(data_set, False)
+    clf = MLPClassifier(solver='adam',
+                        hidden_layer_sizes=(4, 8),
+                        max_iter=100,
+                        activation='relu',
+                        random_state=42)
+    clf.fit(model.train_x, model.train_y)
     Run_on_Adaline(model.train_x, model.train_y, clf, "B")
 
 
 if __name__ == '__main__':
-    part_c("dataSets/dataSet4")
-    # part_d("dataSets/test1")
+    #part_c("dataSets/dataSet4")
+    part_d("dataSets/test2")
     # createConfusionMatrix("dataSets/dataSet4")
     # model = MODEL("dataSets/test1", True)
     # clf = MLPClassifier(solver='adam',
